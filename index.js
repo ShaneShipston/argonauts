@@ -97,11 +97,16 @@ function javascript(cb) {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env', {
-                                targets: {
-                                    browsers: config.browsers,
-                                },
-                            }],
+                            presets: [
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        targets: {
+                                            browsers: config.browsers,
+                                        },
+                                    },
+                                ],
+                            ],
                         }
                     },
                 }],
