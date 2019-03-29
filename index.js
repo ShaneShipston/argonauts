@@ -17,24 +17,64 @@ let config = {
     name: 'Argonauts',
     url: null,
     port: 3000,
-    src: {
-        img: 'src/img/**/*.{png,jpg,gif}',
-        js: 'src/js/**/*.js',
-        css: 'src/scss/**/*.scss',
-        fonts: 'src/fonts/',
-    },
-    dest: {
-        img: 'img',
-        js: 'js',
-        css: 'css',
-        fonts: 'fonts',
-    },
-    watch: null,
+    src: 'src',
+    dest: '.',
+    entries: [],
+    append: null,
+    js: 'js',
+    css: 'css',
+    fonts: 'fonts',
+    img: 'img',
+    watch: [],
     browsers: ['> 1%', 'ie >= 11'],
 };
 
 function setup(options) {
     config = Object.assign(config, options);
+}
+
+function getInputPath(type, uri = null) {
+    const segments = [];
+
+    if (config.src.length > 0) {
+        segments.push(config.src);
+    }
+
+    if (typeof config[type] !== 'string') {
+        if (config[type].in !== null) {
+            segments.push(config[type].in);
+        }
+    } else if (config[type] !== null) {
+        segments.push(config[type]);
+    }
+
+    if (uri !== null) {
+        segments.push(uri);
+    }
+
+    return segments.join('/');
+}
+
+function getOutputPath(type, uri = null) {
+    const segments = [];
+
+    if (config.dest.length > 0) {
+        segments.push(config.dest);
+    }
+
+    if (typeof config[type] !== 'string') {
+        if (config[type].out !== null) {
+            segments.push(config[type].out);
+        }
+    } else if (config[type] !== null) {
+        segments.push(config[type]);
+    }
+
+    if (uri !== null) {
+        segments.push(uri);
+    }
+
+    return segments.join('/');
 }
 
 function browsersync(cb) {
@@ -51,7 +91,7 @@ function browsersync(cb) {
 }
 
 function styles(cb) {
-    src(config.src.css)
+    src(getInputPath('css', '**/*.scss'))
         .pipe(sass({
             outputStyle: 'compressed',
         }).on('error', sass.logError))
@@ -59,7 +99,7 @@ function styles(cb) {
             browsers: config.browsers,
             cascade: false,
         }))
-        .pipe(dest(config.dest.css))
+        .pipe(dest(getOutputPath('css')))
         .pipe(minifycss())
         .pipe(sync.stream({
             match: '**/*.css',
@@ -69,9 +109,9 @@ function styles(cb) {
 }
 
 function images(cb) {
-    src(config.src.img)
+    src(getInputPath('img', '**/*.{png,jpg,gif}'))
         .pipe(imagemin())
-        .pipe(dest(config.dest.img));
+        .pipe(dest(getOutputPath('img')));
 
     cb();
 }
@@ -82,13 +122,19 @@ function reload(cb) {
 }
 
 function javascript(cb) {
-    src(config.src.js)
+    const entries = {};
+
+    config.entries.forEach((entry) => {
+        entries[entry] = `./${getInputPath('js', entry)}.js`;
+    });
+
+    src(getInputPath('js', '**/*.js'))
         .pipe(gulpWebpack({
             mode: 'production',
-            entry: './src/js/main.js',
+            entry: entries,
             output: {
-                path: path.resolve(__dirname, 'js'),
-                filename: 'main.js',
+                path: path.resolve(__dirname, '../../', getOutputPath('js')),
+                filename: '[name].js',
             },
             module: {
                 rules: [{
@@ -112,59 +158,70 @@ function javascript(cb) {
                 }],
             },
         }, webpack))
-        .pipe(dest(config.dest.js));
+        .pipe(dest(getOutputPath('js')));
 
     reload(cb);
 }
 
 function cleanup(cb) {
     del([
-        config.src.img,
-        `${config.src.fonts}*.otf`,
-        `${config.src.fonts}*.ttf`,
+        getInputPath('img'),
+        `${getInputPath('fonts')}*.otf`,
+        `${getInputPath('fonts')}*.ttf`,
     ], cb);
 }
 
 function convertToTtf(cb) {
-    src(`${config.src.fonts}*.otf`)
+    src(`${getInputPath('fonts')}*.otf`)
         .pipe(otfforge())
-        .pipe(dest(config.src.fonts));
+        .pipe(dest(getOutputPath('fonts')));
 
     cb();
 }
 
 function convertToWoff(cb) {
-    src(`${config.src.fonts}*.ttf`)
+    src(`${getInputPath('fonts')}*.ttf`)
         .pipe(ttf2woff())
-        .pipe(dest(config.dest.fonts));
+        .pipe(dest(getOutputPath('fonts')));
 
     cb();
 }
 
 function convertToWoff2(cb) {
-    src(`${config.src.fonts}*.ttf`)
+    src(`${getInputPath('fonts')}*.ttf`)
         .pipe(ttf2woff2())
-        .pipe(dest(config.dest.fonts));
+        .pipe(dest(getOutputPath('fonts')));
 
     cb();
 }
 
 function monitor(cb) {
-    if (config.watch !== null) {
+    if (config.watch.length > 0) {
         watch(config.watch, reload);
     }
 
-    watch(config.src.css, styles);
-    watch(config.src.img, { events: ['add'], delay: 500 }, series(images, cleanup));
-    watch(config.src.js, javascript);
-    watch(`${config.src.fonts}*.otf`, { events: ['add'] }, convertToTtf);
+    if (config.css !== null) {
+        watch(getInputPath('css', '**/*.scss'), styles);
+    }
 
-    const fontWatcher = watch(`${config.src.fonts}*.ttf`, { events: ['add'] }, series(convertToWoff, convertToWoff2, cleanup));
+    if (config.img !== null) {
+        watch(getInputPath('img', '**/*.{png,jpg,gif}'), { events: ['add'], delay: 500 }, images);
+    }
 
-    fontWatcher.on('add', (filename) => {
-        const basename = path.basename(filename, '.ttf');
-        fs.appendFile('src/scss/base/_font_families.scss', `@include fontface("${basename}", "${basename}");\n`, () => {});
-    });
+    if (config.js !== null) {
+        watch(getInputPath('js', '**/*.js'), javascript);
+    }
+
+    if (config.fonts !== null) {
+        watch(`${getInputPath('fonts')}*.otf`, { events: ['add'] }, convertToTtf);
+
+        const watcher = watch(`${getInputPath('fonts')}*.ttf`, { events: ['add'] }, series(convertToWoff, convertToWoff2));
+
+        watcher.on('add', (filename) => {
+            const basename = path.basename(filename, '.ttf');
+            fs.appendFile(config.fonts.append, `@include fontface("${basename}", "${basename}");\n`, () => {});
+        });
+    }
 
     cb();
 }

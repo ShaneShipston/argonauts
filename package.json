@@ -1,6 +1,6 @@
 {
   "name": "argonauts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Simple gulp + webpack build system",
   "homepage": "https://bitbucket.org/ShaneShipston/argonauts",
   "keywords": [
@@ -19,20 +19,20 @@
     "url": "https://bitbucket.org/ShaneShipston/argonauts.git"
   },
   "dependencies": {
-    "@babel/core": "^7.0.0-beta.56",
-    "@babel/preset-env": "^7.0.0-beta.56",
-    "babel-loader": "^8.0.0-beta.4",
-    "browser-sync": "^2.24.0",
+    "@babel/core": "^7.4.2",
+    "@babel/preset-env": "^7.4.2",
+    "babel-loader": "^8.0.5",
+    "browser-sync": "^2.26.3",
     "delete": "^1.1.0",
     "gulp": "^4.0.0",
-    "gulp-autoprefixer": "^5.0.0",
-    "gulp-clean-css": "^3.9.0",
-    "gulp-imagemin": "^4.1.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-clean-css": "^4.0.0",
+    "gulp-imagemin": "^5.0.3",
     "gulp-sass": "^4.0.0",
     "gulp-ttf2woff": "^1.1.0",
     "gulp-ttf2woff2": "^2.0.0",
     "otfforge": "^0.0.2",
-    "webpack": "^4.28.4",
+    "webpack": "^4.29.6",
     "webpack-stream": "^5.2.1"
   }
 }
