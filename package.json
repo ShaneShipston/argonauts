@@ -1,6 +1,6 @@
 {
   "name": "argonauts",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Simple gulp + webpack build system",
   "homepage": "https://bitbucket.org/ShaneShipston/argonauts",
   "keywords": [
@@ -19,7 +19,7 @@
     "url": "https://bitbucket.org/ShaneShipston/argonauts.git"
   },
   "dependencies": {
-    "@babel/core": "^7.4.2",
+    "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "babel-loader": "^8.0.5",
     "browser-sync": "^2.26.3",
