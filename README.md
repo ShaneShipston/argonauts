@@ -14,31 +14,31 @@ If something doesn't exist you may need or doesn't quite do what you want you ca
 
 ### Options
 
-src: Base asset directory. Defaults to 'src'
+src: Base asset directory. Defaults to 'src'  
 dest: Base output directory. Defaults to '.'
 
 ### Browser Sync
 
-name: Project name. Defaults to 'Argonauts'
-url: Proxy URL. Defaults to null.
-port: Localhost port. Defaults to 3000
+name: Project name. Defaults to 'Argonauts'  
+url: Proxy URL. Defaults to null.  
+port: Localhost port. Defaults to 3000  
 watch: Additional files to watch for changes. Defaults to []
 
 ### JavaScript
 
-entries: Input paths for webpack. Defaults to []
-js: Input and output directory. You may pass in an object containing in and out. Defaults to 'js'
-browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']
+entries: Input paths for webpack. Defaults to []  
+js: Input and output directory. You may pass in an object containing in and out. Defaults to 'js'  
+browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']  
 webpack: Webpack options override. JS rules are automatically applied. Defaults to {}
 
 ### Fonts
 
-append: Function to be called upon font conversion. Defaults to null
+append: Function to be called upon font conversion. Defaults to null  
 fonts: Input and output directory. You may pass in an object containing in and out. Defaults to 'fonts'
 
 ### SCSS
 
-css: Input and output directory. You may pass in an object containing in and out. Defaults to 'css'
+css: Input and output directory. You may pass in an object containing in and out. Defaults to 'css'  
 browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']
 
 ### Images
