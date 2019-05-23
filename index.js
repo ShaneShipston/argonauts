@@ -7,7 +7,6 @@ const ttf2woff2 = require('gulp-ttf2woff2');
 const imagemin = require('gulp-imagemin');
 const otfforge = require('otfforge');
 const sync = require('browser-sync').create();
-const fs = require('fs');
 const del = require('delete');
 const path = require('path');
 const webpack = require('webpack');
@@ -27,11 +26,10 @@ let config = {
     img: 'img',
     watch: [],
     browsers: ['> 1%', 'ie >= 11'],
+    webpack: {},
 };
 
-function setup(options) {
-    config = Object.assign(config, options);
-}
+let webpackOptions;
 
 function getInputPath(type, uri = null) {
     const segments = [];
@@ -75,6 +73,48 @@ function getOutputPath(type, uri = null) {
     }
 
     return segments.join('/');
+}
+
+function setup(options) {
+    config = Object.assign(config, options);
+
+    const entries = {};
+
+    config.entries.forEach((entry) => {
+        entries[entry] = `./${getInputPath('js', entry)}.js`;
+    });
+
+    webpackOptions = Object.assign({}, {
+        mode: 'production',
+        entry: entries,
+        output: {
+            path: path.resolve(__dirname, '../../', getOutputPath('js')),
+            filename: '[name].js',
+        },
+        module: {
+            rules: [],
+        },
+    }, config.webpack);
+
+    webpackOptions.module.rules.push({
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+            loader: 'babel-loader',
+            options: {
+                presets: [
+                    [
+                        '@babel/preset-env',
+                        {
+                            targets: {
+                                browsers: config.browsers,
+                            },
+                        },
+                    ],
+                ],
+            },
+        },
+    });
 }
 
 function browsersync(cb) {
@@ -122,42 +162,8 @@ function reload(cb) {
 }
 
 function javascript(cb) {
-    const entries = {};
-
-    config.entries.forEach((entry) => {
-        entries[entry] = `./${getInputPath('js', entry)}.js`;
-    });
-
     src(getInputPath('js', '**/*.js'))
-        .pipe(gulpWebpack({
-            mode: 'production',
-            entry: entries,
-            output: {
-                path: path.resolve(__dirname, '../../', getOutputPath('js')),
-                filename: '[name].js',
-            },
-            module: {
-                rules: [{
-                    test: /\.js$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: [
-                                [
-                                    '@babel/preset-env',
-                                    {
-                                        targets: {
-                                            browsers: config.browsers,
-                                        },
-                                    },
-                                ],
-                            ],
-                        }
-                    },
-                }],
-            },
-        }, webpack))
+        .pipe(gulpWebpack(webpackOptions, webpack))
         .pipe(dest(getOutputPath('js')));
 
     reload(cb);
@@ -217,10 +223,9 @@ function monitor(cb) {
 
         const watcher = watch(`${getInputPath('fonts')}*.ttf`, { events: ['add'] }, series(convertToWoff, convertToWoff2));
 
-        watcher.on('add', (filename) => {
-            const basename = path.basename(filename, '.ttf');
-            fs.appendFile(config.fonts.append, `@include fontface("${basename}", "${basename}");\n`, () => {});
-        });
+        if (config.append !== null) {
+            watcher.on('add', config.append);
+        }
     }
 
     cb();
