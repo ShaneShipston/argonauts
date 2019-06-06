@@ -136,7 +136,7 @@ function styles(cb) {
             outputStyle: 'compressed',
         }).on('error', sass.logError))
         .pipe(prefix({
-            browsers: config.browsers,
+            overrideBrowserslist: config.browsers,
             cascade: false,
         }))
         .pipe(dest(getOutputPath('css')))
