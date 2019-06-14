@@ -172,21 +172,21 @@ function javascript(cb) {
 function cleanup(cb) {
     del([
         getInputPath('img'),
-        `${getInputPath('fonts')}*.otf`,
-        `${getInputPath('fonts')}*.ttf`,
+        getInputPath('fonts', '*.otf'),
+        getInputPath('fonts', '*.ttf'),
     ], cb);
 }
 
 function convertToTtf(cb) {
-    src(`${getInputPath('fonts')}*.otf`)
+    src(getInputPath('fonts', '*.otf'))
         .pipe(otfforge())
-        .pipe(dest(getOutputPath('fonts')));
+        .pipe(dest(getInputPath('fonts')));
 
     cb();
 }
 
 function convertToWoff(cb) {
-    src(`${getInputPath('fonts')}*.ttf`)
+    src(getInputPath('fonts', '*.ttf'))
         .pipe(ttf2woff())
         .pipe(dest(getOutputPath('fonts')));
 
@@ -194,7 +194,7 @@ function convertToWoff(cb) {
 }
 
 function convertToWoff2(cb) {
-    src(`${getInputPath('fonts')}*.ttf`)
+    src(getInputPath('fonts', '*.ttf'))
         .pipe(ttf2woff2())
         .pipe(dest(getOutputPath('fonts')));
 
@@ -219,9 +219,9 @@ function monitor(cb) {
     }
 
     if (config.fonts !== null) {
-        watch(`${getInputPath('fonts')}*.otf`, { events: ['add'] }, convertToTtf);
+        watch(getInputPath('fonts', '*.otf'), { events: ['add'] }, convertToTtf);
 
-        const watcher = watch(`${getInputPath('fonts')}*.ttf`, { events: ['add'] }, series(convertToWoff, convertToWoff2));
+        const watcher = watch(getInputPath('fonts', '*.ttf'), { events: ['add'] }, series(convertToWoff, convertToWoff2));
 
         if (config.append !== null) {
             watcher.on('add', config.append);
