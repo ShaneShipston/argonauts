@@ -28,6 +28,7 @@ watch: Additional files to watch for changes. Defaults to []
 
 entries: Input paths for webpack. Defaults to []  
 js: Input and output directory. You may pass in an object containing in and out. Defaults to 'js'  
+jsExt: List of extensions to trigger a compile on  
 browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']  
 webpack: Webpack options override. JS rules are automatically applied. Defaults to {}
 

@@ -21,6 +21,7 @@ let config = {
     entries: [],
     append: null,
     js: 'js',
+    jsExt: 'js',
     css: 'css',
     fonts: 'fonts',
     img: 'img',
@@ -162,7 +163,7 @@ function reload(cb) {
 }
 
 function javascript(cb) {
-    src(getInputPath('js', '**/*.js'))
+    src(getInputPath('js', `**/*.${config.jsExt}`))
         .pipe(gulpWebpack(webpackOptions, webpack))
         .pipe(dest(getOutputPath('js')));
 
@@ -215,7 +216,7 @@ function monitor(cb) {
     }
 
     if (config.js !== null) {
-        watch(getInputPath('js', '**/*.js'), javascript);
+        watch(getInputPath('js', `**/*.${config.jsExt}`), javascript);
     }
 
     if (config.fonts !== null) {
