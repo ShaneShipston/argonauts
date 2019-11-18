@@ -8,26 +8,39 @@ const imagemin = require('gulp-imagemin');
 const otfforge = require('otfforge');
 const sync = require('browser-sync').create();
 const del = require('delete');
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const gulpWebpack = require('webpack-stream');
 
 let config = {
+    src: 'src',
+    dest: '.',
+    browsers: ['> 1%', 'ie >= 11'],
+
+    // Browsersync
     name: 'Argonauts',
     url: null,
     port: 3000,
-    src: 'src',
-    dest: '.',
+    watch: [],
+
+    // JS
     entries: [],
-    append: null,
     js: 'js',
     jsExt: 'js',
-    css: 'css',
-    fonts: 'fonts',
-    img: 'img',
-    watch: [],
-    browsers: ['> 1%', 'ie >= 11'],
     webpack: {},
+
+    // Fonts
+    append: null,
+    appendFile: null,
+    appendTemplate: null,
+    fonts: 'fonts',
+
+    // CSS
+    css: 'css',
+
+    // Images
+    img: 'img',
 };
 
 let webpackOptions;
@@ -116,6 +129,15 @@ function setup(options) {
             },
         },
     });
+
+    if (config.appendTemplate !== null && config.appendFile !== null) {
+        config.append = (filename) => {
+            const basename = path.basename(filename, '.ttf');
+            const appendString = config.appendTemplate.replace('{font}', basename);
+
+            fs.appendFile(config.appendFile, appendString, () => {});
+        };
+    }
 }
 
 function browsersync(cb) {

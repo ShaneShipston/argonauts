@@ -6,56 +6,78 @@ Simple build system based on Gulp and Webpack.
 
 `npm install argonauts --save-dev`
 
-## Usage
+## Options
 
-The options provided below make it faster to setup a basic gulp file for common tasks. After choosing your options the system works like any standard gulp task.
+**src** `'src'`  
+Base asset directory
 
-If something doesn't exist you may need or doesn't quite do what you want you can write tasks normally.
+**dest** `'.'`  
+Base output directory
 
-### Options
+**browsers** `['> 1%', 'ie >= 11']`  
+Browser support.
 
-src: Base asset directory. Defaults to 'src'  
-dest: Base output directory. Defaults to '.'
+## Browser Sync
 
-### Browser Sync
+**name** `'Argonauts'`  
+Project name.
 
-name: Project name. Defaults to 'Argonauts'  
-url: Proxy URL. Defaults to null.  
-port: Localhost port. Defaults to 3000  
-watch: Additional files to watch for changes. Defaults to []
+**url** `null`  
+Proxy URL.
 
-### JavaScript
+**port** `3000`  
+Localhost port.
 
-entries: Input paths for webpack. Defaults to []  
-js: Input and output directory. You may pass in an object containing in and out. Defaults to 'js'  
-jsExt: List of extensions to trigger a compile on  
-browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']  
-webpack: Webpack options override. JS rules are automatically applied. Defaults to {}
+**watch** `[]`  
+Additional files to watch for changes.
 
-### Fonts
+## JavaScript
 
-append: Function to be called upon font conversion. Defaults to null  
-fonts: Input and output directory. You may pass in an object containing in and out. Defaults to 'fonts'
+**entries** `[]`  
+Input paths for webpack.
 
-### SCSS
+**js** `'js'`  
+Input and output directory. You may pass in an object containing in and out.
 
-css: Input and output directory. You may pass in an object containing in and out. Defaults to 'css'  
-browsers: Browser support. Defaults to ['> 1%', 'ie >= 11']
+**jsExt** `'js'`  
+List of extensions to trigger a compile on
 
-### Images
+**webpack** `{}`  
+Webpack options override. JS rules are automatically applied.
 
-img: Input and output directory. You may pass in an object containing in and out. Defaults to 'img'
+## Fonts
 
-## Example
+**append** `null`  
+Function to be called upon font conversion.
 
-```
+**fonts** `'fonts'`  
+Input and output directory. You may pass in an object containing in and out.
+
+**appendFile** `null`  
+File path to append template string to. The path is relative to your gulpfile.
+
+**appendTemplate** `null`  
+A string containing a `{font}` placeholder which will be replaced with the font's file name.
+
+## SCSS
+
+**css** `'css'`  
+Input and output directory. You may pass in an object containing in and out.
+
+## Images
+
+**img** `'img'`  
+Input and output directory. You may pass in an object containing in and out.
+
+# Example Gulpfile
+
+```js
 const { setup, styles, javascript, browsersync, images, monitor } = require('argonauts');
 const { parallel, series } = require('gulp');
 
 setup({
     url: 'example.vm',
     entries: ['main'],
-    dest: '',
     css: {
         in: 'scss',
         out: '.',
