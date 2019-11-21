@@ -94,41 +94,45 @@ function setup(options) {
 
     const entries = {};
 
-    config.entries.forEach((entry) => {
-        entries[entry] = `./${getInputPath('js', entry)}.js`;
-    });
+    if (config.js !== null) {
+        config.entries.forEach((entry) => {
+            entries[entry] = `./${getInputPath('js', entry)}.js`;
+        });
+    }
 
-    webpackOptions = Object.assign({}, {
-        mode: 'production',
-        entry: entries,
-        output: {
-            path: path.resolve(__dirname, '../../', getOutputPath('js')),
-            filename: '[name].js',
-        },
-        module: {
-            rules: [],
-        },
-    }, config.webpack);
-
-    webpackOptions.module.rules.push({
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-            loader: 'babel-loader',
-            options: {
-                presets: [
-                    [
-                        '@babel/preset-env',
-                        {
-                            targets: {
-                                browsers: config.browsers,
-                            },
-                        },
-                    ],
-                ],
+    if (entries.length > 0) {
+        webpackOptions = Object.assign({}, {
+            mode: 'production',
+            entry: entries,
+            output: {
+                path: path.resolve(__dirname, '../../', getOutputPath('js')),
+                filename: '[name].js',
             },
-        },
-    });
+            module: {
+                rules: [],
+            },
+        }, config.webpack);
+
+        webpackOptions.module.rules.push({
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: [
+                        [
+                            '@babel/preset-env',
+                            {
+                                targets: {
+                                    browsers: config.browsers,
+                                },
+                            },
+                        ],
+                    ],
+                },
+            },
+        });
+    }
 
     if (config.appendTemplate !== null && config.appendFile !== null) {
         config.append = (filename) => {
