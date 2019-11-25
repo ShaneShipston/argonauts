@@ -96,11 +96,11 @@ function setup(options) {
 
     if (config.js !== null) {
         config.entries.forEach((entry) => {
-            entries[entry] = `./${getInputPath('js', entry)}.js`;
+            entries[entry] = path.resolve(__dirname, '../../', `${getInputPath('js', entry)}.js`);
         });
     }
 
-    if (entries.length > 0) {
+    if (config.entries.length > 0) {
         webpackOptions = Object.assign({}, {
             mode: 'production',
             entry: entries,
@@ -142,6 +142,8 @@ function setup(options) {
             fs.appendFile(config.appendFile, appendString, () => {});
         };
     }
+
+    console.log(webpackOptions);
 }
 
 function browsersync(cb) {
