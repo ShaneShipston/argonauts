@@ -142,8 +142,6 @@ function setup(options) {
             fs.appendFile(config.appendFile, appendString, () => {});
         };
     }
-
-    console.log(webpackOptions);
 }
 
 function browsersync(cb) {
@@ -159,8 +157,8 @@ function browsersync(cb) {
     cb();
 }
 
-function styles(cb) {
-    src(getInputPath('css', '**/*.scss'))
+function styles() {
+    const task = src(getInputPath('css', '**/*.scss'))
         .pipe(sass({
             outputStyle: 'compressed',
         }).on('error', sass.logError))
@@ -169,20 +167,21 @@ function styles(cb) {
             cascade: false,
         }))
         .pipe(dest(getOutputPath('css')))
-        .pipe(minifycss())
-        .pipe(sync.stream({
+        .pipe(minifycss());
+
+    if (config.url !== null) {
+        task.pipe(sync.stream({
             match: '**/*.css',
         }));
+    }
 
-    cb();
+    return task;
 }
 
-function images(cb) {
-    src(getInputPath('img', '**/*.{png,jpg,gif}'))
+function images() {
+    return src(getInputPath('img', '**/*.{png,jpg,gif}'))
         .pipe(imagemin())
         .pipe(dest(getOutputPath('img')));
-
-    cb();
 }
 
 function reload(cb) {
@@ -190,12 +189,10 @@ function reload(cb) {
     cb();
 }
 
-function javascript(cb) {
-    src(getInputPath('js', `**/*.${config.jsExt}`))
+function javascript() {
+    return src(getInputPath('js', `**/*.${config.jsExt}`))
         .pipe(gulpWebpack(webpackOptions, webpack))
         .pipe(dest(getOutputPath('js')));
-
-    reload(cb);
 }
 
 function cleanup(cb) {
@@ -206,28 +203,22 @@ function cleanup(cb) {
     ], cb);
 }
 
-function convertToTtf(cb) {
-    src(getInputPath('fonts', '*.otf'))
+function convertToTtf() {
+    return src(getInputPath('fonts', '*.otf'))
         .pipe(otfforge())
         .pipe(dest(getInputPath('fonts')));
-
-    cb();
 }
 
-function convertToWoff(cb) {
-    src(getInputPath('fonts', '*.ttf'))
+function convertToWoff() {
+    return src(getInputPath('fonts', '*.ttf'))
         .pipe(ttf2woff())
         .pipe(dest(getOutputPath('fonts')));
-
-    cb();
 }
 
-function convertToWoff2(cb) {
-    src(getInputPath('fonts', '*.ttf'))
+function convertToWoff2() {
+    return src(getInputPath('fonts', '*.ttf'))
         .pipe(ttf2woff2())
         .pipe(dest(getOutputPath('fonts')));
-
-    cb();
 }
 
 function monitor(cb) {
@@ -265,7 +256,7 @@ module.exports.browsersync = browsersync;
 module.exports.styles = styles;
 module.exports.images = images;
 module.exports.reload = reload;
-module.exports.javascript = javascript;
+module.exports.javascript = series(javascript, reload);
 module.exports.cleanup = cleanup;
 module.exports.convertToTtf = convertToTtf;
 module.exports.convertToWoff = convertToWoff;
