@@ -256,7 +256,7 @@ module.exports.browsersync = browsersync;
 module.exports.styles = styles;
 module.exports.images = images;
 module.exports.reload = reload;
-module.exports.javascript = series(javascript, reload);
+module.exports.javascript = config.url !== null ? series(javascript, reload) : javascript;
 module.exports.cleanup = cleanup;
 module.exports.convertToTtf = convertToTtf;
 module.exports.convertToWoff = convertToWoff;
