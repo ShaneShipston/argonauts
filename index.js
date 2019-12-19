@@ -14,6 +14,7 @@ const webpack = require('webpack');
 const gulpWebpack = require('webpack-stream');
 
 let config = {
+    cwd: process.cwd(),
     src: 'src',
     dest: '.',
     browsers: ['> 1%', 'ie >= 11'],
@@ -64,7 +65,7 @@ function getInputPath(type, uri = null) {
         segments.push(uri);
     }
 
-    return segments.join('/');
+    return path.join(config.cwd, ...segments);
 }
 
 function getOutputPath(type, uri = null) {
@@ -86,7 +87,7 @@ function getOutputPath(type, uri = null) {
         segments.push(uri);
     }
 
-    return segments.join('/');
+    return path.join(config.cwd, ...segments);
 }
 
 function setup(options) {
@@ -96,16 +97,16 @@ function setup(options) {
 
     if (config.js !== null) {
         config.entries.forEach((entry) => {
-            entries[entry] = path.resolve(__dirname, '../../', `${getInputPath('js', entry)}.js`);
+            entries[entry] = `${getInputPath('js', entry)}.js`;
         });
     }
 
-    if (config.entries.length > 0) {
+    if (config.js !== null && config.entries.length > 0) {
         webpackOptions = Object.assign({}, {
             mode: 'production',
             entry: entries,
             output: {
-                path: path.resolve(__dirname, '../../', getOutputPath('js')),
+                path: getOutputPath('js'),
                 filename: '[name].js',
             },
             module: {
@@ -137,9 +138,9 @@ function setup(options) {
     if (config.appendTemplate !== null && config.appendFile !== null) {
         config.append = (filename) => {
             const basename = path.basename(filename, '.ttf');
-            const appendString = config.appendTemplate.replace('{font}', basename);
+            const appendString = config.appendTemplate.replace(/{font}/g, basename);
 
-            fs.appendFile(config.appendFile, appendString, () => {});
+            fs.appendFile(config.appendFile, `${appendString}\n`, () => {});
         };
     }
 }
@@ -166,8 +167,8 @@ function styles() {
             overrideBrowserslist: config.browsers,
             cascade: false,
         }))
-        .pipe(dest(getOutputPath('css')))
-        .pipe(minifycss());
+        .pipe(minifycss())
+        .pipe(dest(getOutputPath('css')));
 
     if (config.url !== null) {
         task.pipe(sync.stream({
@@ -179,7 +180,9 @@ function styles() {
 }
 
 function images() {
-    return src(getInputPath('img', '**/*.{png,jpg,gif}'))
+    return src(getInputPath('img', '**/*.{png,jpg,gif}'), {
+        cwd: config.cwd,
+    })
         .pipe(imagemin())
         .pipe(dest(getOutputPath('img')));
 }
@@ -190,7 +193,9 @@ function reload(cb) {
 }
 
 function javascript() {
-    return src(getInputPath('js', `**/*.${config.jsExt}`))
+    return src(getInputPath('js', `**/*.${config.jsExt}`), {
+        cwd: config.cwd,
+    })
         .pipe(gulpWebpack(webpackOptions, webpack))
         .pipe(dest(getOutputPath('js')));
 }
@@ -204,44 +209,66 @@ function cleanup(cb) {
 }
 
 function convertToTtf() {
-    return src(getInputPath('fonts', '*.otf'))
+    return src(getInputPath('fonts', '*.otf'), {
+        cwd: config.cwd,
+    })
         .pipe(otfforge())
         .pipe(dest(getInputPath('fonts')));
 }
 
 function convertToWoff() {
-    return src(getInputPath('fonts', '*.ttf'))
+    return src(getInputPath('fonts', '*.ttf'), {
+        cwd: config.cwd,
+    })
         .pipe(ttf2woff())
         .pipe(dest(getOutputPath('fonts')));
 }
 
 function convertToWoff2() {
-    return src(getInputPath('fonts', '*.ttf'))
+    return src(getInputPath('fonts', '*.ttf'), {
+        cwd: config.cwd,
+    })
         .pipe(ttf2woff2())
         .pipe(dest(getOutputPath('fonts')));
 }
 
 function monitor(cb) {
     if (config.watch.length > 0) {
-        watch(config.watch, reload);
+        watch(config.watch, {
+            cwd: config.cwd,
+        }, reload);
     }
 
     if (config.css !== null) {
-        watch(getInputPath('css', '**/*.scss'), styles);
+        watch(getInputPath('css', '**/*.scss'), {
+            cwd: config.cwd,
+        }, styles);
     }
 
     if (config.img !== null) {
-        watch(getInputPath('img', '**/*.{png,jpg,gif}'), { events: ['add'], delay: 500 }, images);
+        watch(getInputPath('img', '**/*.{png,jpg,gif}'), {
+            events: ['add'],
+            delay: 500,
+            cwd: config.cwd,
+        }, images);
     }
 
     if (config.js !== null) {
-        watch(getInputPath('js', `**/*.${config.jsExt}`), javascript);
+        watch(getInputPath('js', `**/*.${config.jsExt}`), {
+            cwd: config.cwd,
+        }, config.url !== null ? series(javascript, reload) : javascript);
     }
 
     if (config.fonts !== null) {
-        watch(getInputPath('fonts', '*.otf'), { events: ['add'] }, convertToTtf);
+        watch(getInputPath('fonts', '**/*.otf'), {
+            events: ['add'],
+            cwd: config.cwd,
+        }, convertToTtf);
 
-        const watcher = watch(getInputPath('fonts', '*.ttf'), { events: ['add'] }, series(convertToWoff, convertToWoff2));
+        const watcher = watch(getInputPath('fonts', '**/*.ttf'), {
+            events: ['add'],
+            cwd: config.cwd,
+        }, series(convertToWoff, convertToWoff2));
 
         if (config.append !== null) {
             watcher.on('add', config.append);

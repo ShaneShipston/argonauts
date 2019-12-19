@@ -8,6 +8,9 @@ Simple build system based on Gulp and Webpack.
 
 ## Options
 
+**cwd** `'process.cwd()'`  
+Project folder
+
 **src** `'src'`  
 Base asset directory
 
