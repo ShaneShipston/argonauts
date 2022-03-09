@@ -1,5 +1,5 @@
 const { series, src, dest, watch } = require('gulp');
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const prefix = require('gulp-autoprefixer');
 const minifycss = require('gulp-clean-css');
 const ttf2woff = require('gulp-ttf2woff');
