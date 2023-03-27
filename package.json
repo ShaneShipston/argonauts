@@ -22,7 +22,7 @@
     "@babel/core": "^7.4.0",
     "@babel/preset-env": "^7.4.2",
     "babel-loader": "^8.0.5",
-    "browser-sync": "^2.26.3",
+    "browser-sync": "^2.29.0",
     "delete": "^1.1.0",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.0.0",
@@ -33,7 +33,7 @@
     "gulp-ttf2woff2": "^2.0.0",
     "otfforge": "^0.0.2",
     "sass": "^1.49",
-    "webpack": "^4.29.6",
-    "webpack-stream": "^5.2.1"
+    "webpack": "^5.76.0",
+    "webpack-stream": "^7.0.0"
   }
 }
