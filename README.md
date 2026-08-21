@@ -6,6 +6,8 @@ Simple build system based on Gulp and Webpack.
 
 `npm install argonauts --save-dev`
 
+Requires **Node.js 18+**.
+
 ## Options
 
 **cwd** `'process.cwd()'`  
@@ -17,8 +19,8 @@ Base asset directory
 **dest** `'.'`  
 Base output directory
 
-**browsers** `['> 1%', 'ie >= 11']`  
-Browser support.
+**browsers** `['> 0.5%', 'last 2 versions', 'not dead', 'not ie <= 11']`  
+Browser support (Autoprefixer + Babel targets).
 
 ## Browser Sync
 
@@ -48,20 +50,6 @@ List of extensions to trigger a compile on
 **webpack** `{}`  
 Webpack options override. JS rules are automatically applied.
 
-## Fonts
-
-**append** `null`  
-Function to be called upon font conversion.
-
-**fonts** `'fonts'`  
-Input and output directory. You may pass in an object containing in and out.
-
-**appendFile** `null`  
-File path to append template string to. The path is relative to your gulpfile.
-
-**appendTemplate** `null`  
-A string containing a `{font}` placeholder which will be replaced with the font's file name.
-
 ## SCSS
 
 **css** `'css'`  
@@ -73,7 +61,7 @@ Options passed to [gulp-sass](https://github.com/dlmanning/gulp-sass) / the mode
 ## Images
 
 **img** `'img'`  
-Input and output directory. You may pass in an object containing in and out.
+Input and output directory. You may pass in an object containing in and out. Supports `png`, `jpg`, `gif`, `svg`, and `webp`.
 
 # Example Gulpfile
 

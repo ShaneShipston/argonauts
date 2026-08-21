@@ -2,13 +2,9 @@ const { series, src, dest, watch } = require('gulp');
 const sass = require('gulp-sass')(require('sass'));
 const prefix = require('gulp-autoprefixer');
 const minifycss = require('gulp-clean-css');
-const ttf2woff = require('gulp-ttf2woff');
-const ttf2woff2 = require('gulp-ttf2woff2');
 const imagemin = require('gulp-imagemin');
-const otfforge = require('otfforge');
 const sync = require('browser-sync').create();
 const del = require('delete');
-const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const gulpWebpack = require('webpack-stream');
@@ -17,7 +13,7 @@ let config = {
     cwd: process.cwd(),
     src: 'src',
     dest: '.',
-    browsers: ['> 1%', 'ie >= 11'],
+    browsers: ['> 0.5%', 'last 2 versions', 'not dead', 'not ie <= 11'],
 
     // Browsersync
     name: 'Argonauts',
@@ -30,12 +26,6 @@ let config = {
     js: 'js',
     jsExt: 'js',
     webpack: {},
-
-    // Fonts
-    append: null,
-    appendFile: null,
-    appendTemplate: null,
-    fonts: 'fonts',
 
     // CSS
     css: 'css',
@@ -135,15 +125,6 @@ function setup(options) {
             },
         });
     }
-
-    if (config.appendTemplate !== null && config.appendFile !== null) {
-        config.append = (filename) => {
-            const basename = path.basename(filename, '.ttf');
-            const appendString = config.appendTemplate.replace(/{font}/g, basename);
-
-            fs.appendFile(config.appendFile, `${appendString}\n`, () => {});
-        };
-    }
 }
 
 function browsersync(cb) {
@@ -164,30 +145,37 @@ function styles() {
         style: 'compressed',
     }, config.sass);
 
-    const task = src(getInputPath('css', '**/*.scss'))
+    const stream = src(getInputPath('css', '**/*.scss'))
         .pipe(sass(sassOptions).on('error', sass.logError))
         .pipe(prefix({
             overrideBrowserslist: config.browsers,
             cascade: false,
         }))
-        .pipe(minifycss())
-        .pipe(dest(getOutputPath('css')));
+        .pipe(minifycss());
 
-    if (config.url !== null) {
-        task.pipe(sync.stream({
-            match: '**/*.css',
-        }));
+    if (config.url === null) {
+        return stream.pipe(dest(getOutputPath('css')));
     }
 
-    return task;
+    return stream
+        .pipe(dest(getOutputPath('css'), {
+            passthrough: true,
+        }))
+        .pipe(sync.stream({
+            match: '**/*.css',
+        }));
 }
 
 function images() {
-    return src(getInputPath('img', '**/*.{png,jpg,gif}'), {
+    // Gulp 5 defaults to UTF-8; images must be treated as binary
+    return src(getInputPath('img', '**/*.{png,jpg,gif,svg,webp}'), {
         cwd: config.cwd,
+        encoding: false,
     })
         .pipe(imagemin())
-        .pipe(dest(getOutputPath('img')));
+        .pipe(dest(getOutputPath('img'), {
+            encoding: false,
+        }));
 }
 
 function reload(cb) {
@@ -204,35 +192,12 @@ function javascript() {
 }
 
 function cleanup(cb) {
-    del([
-        getInputPath('img'),
-        getInputPath('fonts', '*.otf'),
-        getInputPath('fonts', '*.ttf'),
-    ], cb);
-}
+    if (config.img === null) {
+        cb();
+        return;
+    }
 
-function convertToTtf() {
-    return src(getInputPath('fonts', '*.otf'), {
-        cwd: config.cwd,
-    })
-        .pipe(otfforge())
-        .pipe(dest(getInputPath('fonts')));
-}
-
-function convertToWoff() {
-    return src(getInputPath('fonts', '*.ttf'), {
-        cwd: config.cwd,
-    })
-        .pipe(ttf2woff())
-        .pipe(dest(getOutputPath('fonts')));
-}
-
-function convertToWoff2() {
-    return src(getInputPath('fonts', '*.ttf'), {
-        cwd: config.cwd,
-    })
-        .pipe(ttf2woff2())
-        .pipe(dest(getOutputPath('fonts')));
+    del([getInputPath('img')], cb);
 }
 
 function monitor(cb) {
@@ -249,7 +214,7 @@ function monitor(cb) {
     }
 
     if (config.img !== null) {
-        watch(getInputPath('img', '**/*.{png,jpg,gif}'), {
+        watch(getInputPath('img', '**/*.{png,jpg,gif,svg,webp}'), {
             events: ['add'],
             delay: 500,
             cwd: config.cwd,
@@ -262,22 +227,6 @@ function monitor(cb) {
         }, config.url !== null ? series(javascript, reload) : javascript);
     }
 
-    if (config.fonts !== null) {
-        watch(getInputPath('fonts', '**/*.otf'), {
-            events: ['add'],
-            cwd: config.cwd,
-        }, convertToTtf);
-
-        const watcher = watch(getInputPath('fonts', '**/*.ttf'), {
-            events: ['add'],
-            cwd: config.cwd,
-        }, series(convertToWoff, convertToWoff2));
-
-        if (config.append !== null) {
-            watcher.on('add', config.append);
-        }
-    }
-
     cb();
 }
 
@@ -286,9 +235,6 @@ module.exports.browsersync = browsersync;
 module.exports.styles = styles;
 module.exports.images = images;
 module.exports.reload = reload;
-module.exports.javascript = config.url !== null ? series(javascript, reload) : javascript;
+module.exports.javascript = javascript;
 module.exports.cleanup = cleanup;
-module.exports.convertToTtf = convertToTtf;
-module.exports.convertToWoff = convertToWoff;
-module.exports.convertToWoff2 = convertToWoff2;
 module.exports.monitor = monitor;

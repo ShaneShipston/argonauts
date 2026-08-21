@@ -10,6 +10,9 @@
   ],
   "license": "MIT",
   "main": "index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "author": {
     "name": "Shane Shipston",
     "email": "shaneshipston@gmail.com"
@@ -19,21 +22,18 @@
     "url": "https://bitbucket.org/ShaneShipston/argonauts.git"
   },
   "dependencies": {
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.2",
-    "babel-loader": "^8.0.5",
-    "browser-sync": "^2.29.0",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "babel-loader": "^10.0.0",
+    "browser-sync": "^3.0.4",
     "delete": "^1.1.0",
-    "gulp": "^4.0.0",
-    "gulp-autoprefixer": "^6.0.0",
-    "gulp-clean-css": "^4.0.0",
-    "gulp-imagemin": "^5.0.3",
+    "gulp": "^5.0.1",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-imagemin": "^7.1.0",
     "gulp-sass": "^6.0.1",
-    "gulp-ttf2woff": "^1.1.0",
-    "gulp-ttf2woff2": "^2.0.0",
-    "otfforge": "^0.0.2",
     "sass": "^1.85.0",
-    "webpack": "^5.76.0",
+    "webpack": "^5.109.0",
     "webpack-stream": "^7.0.0"
   }
 }
