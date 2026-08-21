@@ -1,6 +1,6 @@
 {
   "name": "argonauts",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Simple gulp + webpack build system",
   "homepage": "https://github.com/ShaneShipston/argonauts",
   "keywords": [
