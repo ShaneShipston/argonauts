@@ -6,7 +6,7 @@ Simple build system based on Gulp and Webpack.
 
 `npm install argonauts --save-dev`
 
-Requires **Node.js 18+**.
+Requires **Node.js 18+** and an **ESM** gulpfile (`gulpfile.mjs`, or `"type": "module"` in the consuming package — `gulpfile.mjs` is preferred so theme JS stays CommonJS-friendly for Webpack).
 
 ## Options
 
@@ -66,8 +66,8 @@ Input and output directory. You may pass in an object containing in and out. Sup
 # Example Gulpfile
 
 ```js
-const { setup, styles, javascript, browsersync, images, monitor } = require('argonauts');
-const { parallel, series } = require('gulp');
+import { setup, styles, javascript, browsersync, images, monitor } from 'argonauts';
+import { parallel, series } from 'gulp';
 
 setup({
     url: 'example.vm',
@@ -83,8 +83,8 @@ setup({
     ],
 });
 
-exports.init = parallel(styles, javascript);
-exports.default = series(browsersync, parallel(styles, javascript, images), monitor);
+export const init = parallel(styles, javascript);
+export default series(browsersync, parallel(styles, javascript, images), monitor);
 ```
 
 ## License

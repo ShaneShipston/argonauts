@@ -1,13 +1,17 @@
-const { series, src, dest, watch } = require('gulp');
-const sass = require('gulp-sass')(require('sass'));
-const prefix = require('gulp-autoprefixer');
-const minifycss = require('gulp-clean-css');
-const imagemin = require('gulp-imagemin');
-const sync = require('browser-sync').create();
-const del = require('delete');
-const path = require('path');
-const webpack = require('webpack');
-const gulpWebpack = require('webpack-stream');
+import path from 'node:path';
+import { series, src, dest, watch } from 'gulp';
+import * as dartSass from 'sass';
+import gulpSass from 'gulp-sass';
+import prefix from 'gulp-autoprefixer';
+import minifycss from 'gulp-clean-css';
+import imagemin from 'gulp-imagemin';
+import browserSync from 'browser-sync';
+import { deleteAsync } from 'del';
+import webpack from 'webpack';
+import webpackStream from 'webpack-stream';
+
+const sass = gulpSass(dartSass);
+const sync = browserSync.create();
 
 let config = {
     cwd: process.cwd(),
@@ -81,7 +85,7 @@ function getOutputPath(type, uri = null) {
     return path.join(config.cwd, ...segments);
 }
 
-function setup(options) {
+export function setup(options) {
     config = Object.assign(config, options);
 
     const entries = {};
@@ -127,7 +131,7 @@ function setup(options) {
     }
 }
 
-function browsersync(cb) {
+export function browsersync(cb) {
     sync.init({
         proxy: config.url,
         port: config.port,
@@ -140,7 +144,7 @@ function browsersync(cb) {
     cb();
 }
 
-function styles() {
+export function styles() {
     const sassOptions = Object.assign({
         style: 'compressed',
     }, config.sass);
@@ -166,7 +170,7 @@ function styles() {
         }));
 }
 
-function images() {
+export function images() {
     // Gulp 5 defaults to UTF-8; images must be treated as binary
     return src(getInputPath('img', '**/*.{png,jpg,gif,svg,webp}'), {
         cwd: config.cwd,
@@ -178,29 +182,28 @@ function images() {
         }));
 }
 
-function reload(cb) {
+export function reload(cb) {
     sync.reload();
     cb();
 }
 
-function javascript() {
+export function javascript() {
     return src(getInputPath('js', `**/*.${config.jsExt}`), {
         cwd: config.cwd,
     })
-        .pipe(gulpWebpack(webpackOptions, webpack))
+        .pipe(webpackStream(webpackOptions, webpack))
         .pipe(dest(getOutputPath('js')));
 }
 
-function cleanup(cb) {
+export async function cleanup() {
     if (config.img === null) {
-        cb();
         return;
     }
 
-    del([getInputPath('img')], cb);
+    await deleteAsync([getInputPath('img')]);
 }
 
-function monitor(cb) {
+export function monitor(cb) {
     if (config.watch.length > 0) {
         watch(config.watch, {
             cwd: config.cwd,
@@ -229,12 +232,3 @@ function monitor(cb) {
 
     cb();
 }
-
-module.exports.setup = setup;
-module.exports.browsersync = browsersync;
-module.exports.styles = styles;
-module.exports.images = images;
-module.exports.reload = reload;
-module.exports.javascript = javascript;
-module.exports.cleanup = cleanup;
-module.exports.monitor = monitor;
