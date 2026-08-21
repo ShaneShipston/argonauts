@@ -39,6 +39,7 @@ let config = {
 
     // CSS
     css: 'css',
+    sass: {},
 
     // Images
     img: 'img',
@@ -159,10 +160,12 @@ function browsersync(cb) {
 }
 
 function styles() {
+    const sassOptions = Object.assign({
+        style: 'compressed',
+    }, config.sass);
+
     const task = src(getInputPath('css', '**/*.scss'))
-        .pipe(sass({
-            outputStyle: 'compressed',
-        }).on('error', sass.logError))
+        .pipe(sass(sassOptions).on('error', sass.logError))
         .pipe(prefix({
             overrideBrowserslist: config.browsers,
             cascade: false,

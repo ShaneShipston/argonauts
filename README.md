@@ -67,6 +67,9 @@ A string containing a `{font}` placeholder which will be replaced with the font'
 **css** `'css'`  
 Input and output directory. You may pass in an object containing in and out.
 
+**sass** `{}`  
+Options passed to [gulp-sass](https://github.com/dlmanning/gulp-sass) / the modern Sass JS API. Defaults to `{ style: 'compressed' }`. Use this for `silenceDeprecations`, `loadPaths`, etc.
+
 ## Images
 
 **img** `'img'`  

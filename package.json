@@ -28,11 +28,11 @@
     "gulp-autoprefixer": "^6.0.0",
     "gulp-clean-css": "^4.0.0",
     "gulp-imagemin": "^5.0.3",
-    "gulp-sass": "^5.0.0",
+    "gulp-sass": "^6.0.1",
     "gulp-ttf2woff": "^1.1.0",
     "gulp-ttf2woff2": "^2.0.0",
     "otfforge": "^0.0.2",
-    "sass": "^1.49",
+    "sass": "^1.85.0",
     "webpack": "^5.76.0",
     "webpack-stream": "^7.0.0"
   }
